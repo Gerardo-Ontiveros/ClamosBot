@@ -96,9 +96,12 @@ export const startTracking = async (chatClient: any, channel: string) => {
   }, 300000);
 };
 
-export const stopTracking = (chatClient: any, channel: string) => {
+export const stopTracking = async (chatClient: any, channel: string) => {
   if (!trackerInterval) {
     chatClient.say(channel, "⚠️ El rastreador no está activo.");
+    await winsRef.set(0);
+    await losesRef.set(0);
+    await streakRef.set(0);
     return;
   }
 
