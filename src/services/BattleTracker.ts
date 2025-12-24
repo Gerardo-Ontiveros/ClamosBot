@@ -5,7 +5,7 @@ import { db } from "../config/Firebase";
 const PLAYER_TAGS = ["#P2U9G2J", "#U0UJCJUP0"];
 
 const winsRef = db.ref("stream/stats/wins");
-const losesRef = db.ref("strem/stats/loses");
+const losesRef = db.ref("stream/stats/loses");
 const streakRef = db.ref("stream/stats/racha");
 
 let trackerInterval: NodeJS.Timeout | null = null;
