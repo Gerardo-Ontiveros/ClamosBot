@@ -4,7 +4,7 @@ import WebServer from "./server";
 import { prisma } from "./database/prisma";
 import { Command } from "./types/Commands";
 import { staticCommands } from "./commands";
-import { ApiClient } from "@twurple/api";
+import { apiClient } from "./config/ApiClient";
 import { parseResponse } from "./utils/variableParser";
 
 async function main() {
@@ -25,8 +25,6 @@ async function main() {
     channels: channelsToJoin,
     isAlwaysMod: true,
   });
-
-  const apiClient = new ApiClient({ authProvider });
 
   chatClient.onMessage(async (channel, user, text, msg) => {
     const args = text.split(" ");
@@ -77,6 +75,16 @@ async function main() {
             trigger: triggerWord,
           },
         });
+
+        if (!dynamicCmd?.isEnabled) {
+          return;
+        }
+
+        if (dynamicCmd.isModOnly) {
+          if (!msg.userInfo.isMod && !msg.userInfo.isBroadcaster) {
+            return;
+          }
+        }
 
         if (dynamicCmd) {
           const finalResponse = parseResponse(dynamicCmd.response, user, args);
