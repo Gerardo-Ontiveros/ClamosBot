@@ -1,9 +1,11 @@
 import { ManageCommands } from "./dynamic/commandService";
 import { Commands } from "./static/commands";
 import { Deck } from "./static/deck";
+import { Game } from "./static/game";
 import { Ping } from "./static/ping";
-import { Prediction } from "./static/predictions";
+import { ClosePred, Prediction, WinBlue, WinPink } from "./static/predictions";
 import { Rank } from "./static/rank";
+import { Ruleta } from "./static/ruleta";
 import { Title } from "./static/title";
 import { StartTracker, StopTracker } from "./static/trackerControl";
 
@@ -17,4 +19,9 @@ export const staticCommands = [
   Deck,
   StartTracker,
   StopTracker,
+  Ruleta,
+  WinBlue,
+  WinPink,
+  ClosePred,
+  Game,
 ];

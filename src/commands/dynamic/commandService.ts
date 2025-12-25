@@ -12,7 +12,7 @@ export const ManageCommands: Command = {
     if (!action) {
       await chatClient.say(
         channel,
-        "Uso: !cmd <add|edit|del> <comando> [respuesta]"
+        "Uso: -cmd <add|edit|del> <comando> [respuesta]"
       );
       return;
     }
@@ -33,11 +33,18 @@ export const ManageCommands: Command = {
     try {
       switch (action) {
         case "add":
+          const isModOnly = args.includes("?mod");
+
+          const cleanArgs = args.filter((arg) => arg !== "?mod");
+          const newTrigger = cleanArgs[1];
+          const response = cleanArgs.slice(2).join(" ");
           await prisma.customCommand.create({
             data: {
-              trigger: trigger.toLowerCase(),
-              response: responseText,
+              trigger: newTrigger.toLowerCase(),
+              response: response,
               userId: channelUser.id,
+              isModOnly: isModOnly,
+              isEnabled: true,
             },
           });
           await chatClient.say(channel, `✅ Comando ${trigger} agregado.`);
@@ -67,13 +74,38 @@ export const ManageCommands: Command = {
           });
           await chatClient.say(channel, `🗑️ Comando ${trigger} eliminado.`);
           break;
+        case "enable":
+          await prisma.customCommand.update({
+            where: {
+              userId_trigger: { userId: channelUser.id, trigger: trigger },
+            },
+            data: {
+              isEnabled: true,
+            },
+          });
+          await chatClient.say(channel, `Se ha activado el comando ${trigger}`);
+
+          break;
+        case "disable":
+          await prisma.customCommand.update({
+            where: {
+              userId_trigger: { userId: channelUser.id, trigger: trigger },
+            },
+            data: {
+              isEnabled: false,
+            },
+          });
+          await chatClient.say(
+            channel,
+            `Se ha desactivado el comando ${trigger}`
+          );
+          break;
       }
     } catch (error: any) {
-      // Manejo de errores comunes de Prisma
       if (error.code === "P2002") {
         await chatClient.say(
           channel,
-          `⚠️ El comando ${trigger} ya existe. Usa '!cmd edit' para cambiarlo.`
+          `⚠️ El comando ${trigger} ya existe. Usa '-cmd edit' para cambiarlo.`
         );
       } else if (error.code === "P2025") {
         await chatClient.say(channel, `⚠️ El comando ${trigger} no existe.`);
