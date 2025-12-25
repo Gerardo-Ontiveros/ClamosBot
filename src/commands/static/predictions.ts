@@ -1,4 +1,10 @@
+import { HelixPrediction } from "@twurple/api";
 import { Command } from "../../types/Commands";
+import {
+  formatStats,
+  lockPrediction,
+  resolvePrediction,
+} from "../../utils/Predictions";
 
 export const Prediction: Command = {
   name: "pred",
@@ -7,7 +13,7 @@ export const Prediction: Command = {
     if (args.length < 2) {
       await chatClient.say(
         channel,
-        `Uso: !prediccion <segundos> <título> [/ Opción1 / Opción2]`
+        `Uso: -pred <segundos> <título> / Opción1 / Opción2`
       );
       return;
     }
@@ -53,9 +59,10 @@ export const Prediction: Command = {
       if (!broadcaster) {
         return;
       }
+      let prediction: HelixPrediction | undefined;
 
       await apiClient.asUser(broadcaster.id, async (ctx) => {
-        await ctx.predictions.createPrediction(broadcaster.id, {
+        prediction = await ctx.predictions.createPrediction(broadcaster.id, {
           title: title,
           outcomes: outcomes,
           autoLockAfter: timeWindow,
@@ -66,9 +73,85 @@ export const Prediction: Command = {
         channel,
         `peepoCheer PREDICCION ACTIVA "${title}" (Cierra en ${timeWindow}s)`
       );
+
+      if (prediction) {
+        const predictionId = prediction.id;
+        setTimeout(async () => {
+          try {
+            const freshPred = await apiClient.predictions.getPredictionById(
+              broadcaster.id,
+              predictionId
+            );
+
+            if (freshPred && freshPred.status === "LOCKED") {
+              const statsMsg = formatStats(freshPred);
+              chatClient.say(
+                channel,
+                `APUESTAS CERRADAS: ${statsMsg} peepoCheer`
+              );
+            }
+          } catch (err) {
+            console.error("Error al mostrar stats automáticos:", err);
+          }
+        }, (timeWindow + 2) * 1000);
+      }
     } catch (error) {
       console.error(error);
       await chatClient.say(channel, "Ocurrio un error al crear predicción");
+    }
+  },
+};
+
+export const WinBlue: Command = {
+  name: "azul",
+  adminOnly: true,
+  description: "La prediccion la ganan los del lado azul",
+  execute: async ({ chatClient, channel }) => {
+    try {
+      const channelName = channel.replace("#", "");
+      await resolvePrediction(channelName, "azul");
+
+      chatClient.say(channel, "EL LADO AZUL GANA LA PREDICCION peepoCheer");
+    } catch (e) {
+      console.error(e);
+    }
+  },
+};
+
+export const WinPink: Command = {
+  name: "rosa",
+  adminOnly: true,
+  description: "La prediccion la ganan los del lado rosa",
+  execute: async ({ chatClient, channel }) => {
+    try {
+      const channelName = channel.replace("#", "");
+      await resolvePrediction(channelName, "rosa");
+
+      chatClient.say(channel, "EL LADO ROSA GANA LA PREDICCION peepoCheer");
+    } catch (e) {
+      console.error(e);
+    }
+  },
+};
+
+export const ClosePred: Command = {
+  name: "cerrarPred",
+  adminOnly: true,
+  description: "Cierra las votaciones y muestra resultados",
+  execute: async ({ chatClient, channel }) => {
+    try {
+      const channelName = channel.replace("#", "");
+
+      const lockedPred = await lockPrediction(channelName);
+
+      if (lockedPred) {
+        const statsMsg = formatStats(lockedPred);
+        chatClient.say(channel, `APUESTAS CERRADAS: ${statsMsg} peepoCheer`);
+      } else {
+        chatClient.say(channel, "No hay predicción activa para cerrar.");
+      }
+    } catch (e) {
+      console.error(e);
     }
   },
 };
