@@ -22,7 +22,10 @@ export const Title: Command = {
           title: newTitle,
         });
 
-        await chatClient.say(channel, `✅ Título actualizado correctamente.`);
+        await chatClient.say(
+          channel,
+          `Título actualizado correctamente. NOTED`
+        );
       });
     } catch (error) {
       console.error(error);
