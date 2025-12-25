@@ -29,5 +29,9 @@ model CustomCommand {
   response  String
   userId    String
   user      User   @relation(fields: [userId], references: [id])
+  
+  isModOnly Boolean @default(false)
+  isEnabled Boolean @default(true)
+
   @@unique([userId, trigger])
 }
