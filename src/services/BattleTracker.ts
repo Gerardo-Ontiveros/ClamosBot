@@ -99,14 +99,17 @@ export const startTracking = async (chatClient: any, channel: string) => {
 export const stopTracking = async (chatClient: any, channel: string) => {
   if (!trackerInterval) {
     chatClient.say(channel, "⚠️ El rastreador no está activo.");
-    await winsRef.set(0);
-    await losesRef.set(0);
-    await streakRef.set(0);
     return;
   }
-
   clearInterval(trackerInterval);
   trackerInterval = null;
 
   chatClient.say(channel, "🔴 Contador pausado. sadge");
+};
+
+export const resetTracking = async (chatClient: any, channel: string) => {
+  await winsRef.set(0);
+  await losesRef.set(0);
+  await streakRef.set(0);
+  chatClient.say(channel, "CONTADOR REINICIADO peepocheer");
 };

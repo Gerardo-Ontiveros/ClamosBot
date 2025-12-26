@@ -1,5 +1,9 @@
 import { Command } from "../../types/Commands";
-import { startTracking, stopTracking } from "../../services/BattleTracker";
+import {
+  startTracking,
+  stopTracking,
+  resetTracking,
+} from "../../services/BattleTracker";
 
 export const StartTracker: Command = {
   name: "liveon",
@@ -16,5 +20,14 @@ export const StopTracker: Command = {
   description: "Pausa el rastreo de batallas",
   execute: async ({ chatClient, channel, user }) => {
     stopTracking(chatClient, channel);
+  },
+};
+
+export const ResetTracker: Command = {
+  name: "reset",
+  adminOnly: true,
+  description: "Reinicia el contador de victorias y derrotas",
+  execute: async ({ chatClient, channel, user }) => {
+    resetTracking(chatClient, channel);
   },
 };

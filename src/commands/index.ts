@@ -7,7 +7,11 @@ import { ClosePred, Prediction, WinBlue, WinPink } from "./static/predictions";
 import { Rank } from "./static/rank";
 import { Ruleta } from "./static/ruleta";
 import { Title } from "./static/title";
-import { StartTracker, StopTracker } from "./static/trackerControl";
+import {
+  ResetTracker,
+  StartTracker,
+  StopTracker,
+} from "./static/trackerControl";
 
 export const staticCommands = [
   Ping,
@@ -19,6 +23,7 @@ export const staticCommands = [
   Deck,
   StartTracker,
   StopTracker,
+  ResetTracker,
   Ruleta,
   WinBlue,
   WinPink,
