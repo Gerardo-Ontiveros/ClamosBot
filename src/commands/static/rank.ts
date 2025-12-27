@@ -6,25 +6,37 @@ export const Rank: Command = {
   name: "rank",
   description: "",
   execute: async ({ chatClient, channel, user, args }) => {
-    const defaultTag = "P2U9G2J";
-    const playerName = args.slice(1).join(" ");
+    const sergioRamos = "P2U9G2J";
+    const pollosHermanos = "U0UJCJUP0";
 
     try {
-      let playerName = defaultTag;
+      const resSergioRamos = await axios.get(
+        `${apiUri}/v1/players/%23${sergioRamos}`,
+        {
+          headers: {
+            Authorization: `Bearer ${clashRoyaleToken}`,
+          },
+        }
+      );
 
-      const res = await axios.get(`${apiUri}/v1/players/%23${playerName}`, {
-        headers: {
-          Authorization: `Bearer ${clashRoyaleToken}`,
-        },
-      });
+      const resPollosHemanos = await axios.get(
+        `${apiUri}/v1/players/%23${pollosHermanos}`
+      );
 
-      const rank = res.data.currentPathOfLegendSeasonResult.rank;
-      const trophies = res.data.currentPathOfLegendSeasonResult.trophies;
-      const name = res.data.name;
+      const rankSergioRamos =
+        resSergioRamos.data.currentPathOfLegendSeasonResult.rank;
+      const trophiesSergioRamos =
+        resSergioRamos.data.currentPathOfLegendSeasonResult.trophies;
+      const nameSergioRamos = resSergioRamos.data.name;
+      const rankPollosHemanos =
+        resPollosHemanos.data.currentPathOfLegendSeasonResult.rank;
+      const trophiesPollosHemanos =
+        resPollosHemanos.data.currentPathOfLegendSeasonResult.trophies;
+      const namePollosHemanos = resPollosHemanos.data.name;
 
       await chatClient.say(
         channel,
-        `@${user} ${name} esta en el top #${rank} con ${trophies} medallas 🏅`
+        `@${user} ${nameSergioRamos} esta en el top #${rankSergioRamos} con ${trophiesSergioRamos} medallas 🏅 | ${namePollosHemanos} esta en el top #${rankPollosHemanos} con ${trophiesPollosHemanos} medallas 🏅`
       );
     } catch (err: any) {
       await chatClient.say(channel, `@${user} no pude obtener el rank :(`);
