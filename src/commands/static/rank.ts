@@ -20,7 +20,12 @@ export const Rank: Command = {
       );
 
       const resPollosHemanos = await axios.get(
-        `${apiUri}/v1/players/%23${pollosHermanos}`
+        `${apiUri}/v1/players/%23${pollosHermanos}`,
+        {
+          headers: {
+            Authorization: `Bearer ${clashRoyaleToken}`,
+          },
+        }
       );
 
       const rankSergioRamos =
