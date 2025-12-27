@@ -4,11 +4,11 @@ import { apiClient } from "../../config/ApiClient";
 export const Ruleta: Command = {
   name: "ruleta",
   description: "Los usuario se juegan un timeout a si mismos",
-  execute: async ({ chatClient, channel, user, msg }) => {
+  execute: async ({ chatClient, channel, user, args, msg }) => {
     try {
       const channelName = channel.replace("#", "");
 
-      if ((msg.userInfo.isMod, msg.userInfo.isBroadcaster)) {
+      if (msg.userInfo.isMod || msg.userInfo.isBroadcaster) {
         await chatClient.say(channel, `🛡️ @${user} Eres mod madgeCat.`);
         return;
       }
@@ -19,10 +19,10 @@ export const Ruleta: Command = {
       const randomDuration =
         Math.floor(Math.random() * (maxSeconds - minSeconds + 1)) + minSeconds;
 
-      const broadcasterId = msg.channelId;
-      const targetUserId = msg.userInfo.userId;
+      const broadcaster = await apiClient.users.getUserByName(channelName);
+      const targetUser = await apiClient.users.getUserByName(user);
 
-      if (!broadcasterId || !targetUserId) return;
+      if (!broadcaster || !targetUser) return;
 
       if (randomDuration === 0) {
         await chatClient.say(
@@ -30,8 +30,8 @@ export const Ruleta: Command = {
           `@${user} no se baño hoy tuvo suerte y no le toco timeout.`
         );
       } else {
-        await apiClient.moderation.banUser(broadcasterId, {
-          user: targetUserId,
+        await apiClient.moderation.banUser(broadcaster?.id, {
+          user: targetUser.id,
           duration: randomDuration,
           reason: `Jugo a la ruleta y le tocaron ${randomDuration} de descanso`,
         });
@@ -43,7 +43,17 @@ export const Ruleta: Command = {
       }
     } catch (error: any) {
       console.error("Error al dar timeout:", error);
-      await chatClient.say(channel, "Te salvaste no pude calcular tu castigo.");
+      if (
+        error.message.includes("permission") ||
+        error.message.includes("missing scope")
+      ) {
+        await chatClient.say(channel, `🛡️ @${user} Eres mod madgeCat.`);
+      } else {
+        await chatClient.say(
+          channel,
+          "Te salvaste no pude calcular tu castigo."
+        );
+      }
     }
   },
 };
