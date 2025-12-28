@@ -21,17 +21,19 @@ export const Ruleta: Command = {
       const broadcaster = await apiClient.users.getUserByName(channelName);
 
       if (!broadcaster) return;
-
+      const botId = 1371906002;
       if (randomDuration === 0) {
         await chatClient.say(
           channel,
           `@${user} no se baño hoy tuvo suerte y no le toco timeout.`
         );
       } else {
-        await apiClient.moderation.banUser(broadcaster.id, {
-          user: msg.userInfo.userId,
-          duration: randomDuration,
-          reason: `Jugo a la ruleta y le tocaron ${randomDuration} de descanso`,
+        await apiClient.asUser(botId, async (ctx) => {
+          await ctx.moderation.banUser(broadcaster.id, {
+            user: msg.userInfo.userId,
+            duration: randomDuration,
+            reason: `Timeout random ejecutado por ${user}`,
+          });
         });
 
         await chatClient.say(
@@ -48,7 +50,7 @@ export const Ruleta: Command = {
       ) {
         await chatClient.say(channel, `🛡️ @${user} eres mod madgeCat`);
       } else {
-      console.error("Error al dar timeout:", error);
+        console.error("Error al dar timeout:", error);
         await chatClient.say(
           channel,
           "Te salvaste no pude calcular tu castigo."

@@ -36,11 +36,14 @@ export const Timeout: Command = {
       const duration = Math.floor(
         Math.random() * (maxSeconds - minSeconds + 1) + minSeconds
       );
+      const botId = 1371906002;
 
-      await apiClient.moderation.banUser(broadcaster.id, {
-        user: targetUser.id,
-        duration: duration,
-        reason: `Timeout random ejecutado por ${user}`,
+      await apiClient.asUser(botId, async (ctx) => {
+        await ctx.moderation.banUser(broadcaster.id, {
+          user: msg.userInfo.userId,
+          duration: duration,
+          reason: `Timeout random ejecutado por ${user}`,
+        });
       });
 
       await chatClient.say(
