@@ -48,6 +48,7 @@ export const Ruleta: Command = {
       ) {
         await chatClient.say(channel, `🛡️ @${user} eres mod madgeCat`);
       } else {
+      console.error("Error al dar timeout:", error);
         await chatClient.say(
           channel,
           "Te salvaste no pude calcular tu castigo."
