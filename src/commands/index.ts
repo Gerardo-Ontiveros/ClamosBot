@@ -6,6 +6,7 @@ import { Ping } from "./static/ping";
 import { ClosePred, Prediction, WinBlue, WinPink } from "./static/predictions";
 import { Rank } from "./static/rank";
 import { Ruleta } from "./static/ruleta";
+import { Timeout } from "./static/timeout";
 import { Title } from "./static/title";
 import {
   ResetTracker,
@@ -29,4 +30,5 @@ export const staticCommands = [
   WinPink,
   ClosePred,
   Game,
+  Timeout,
 ];
