@@ -32,7 +32,7 @@ export const Ruleta: Command = {
           await ctx.moderation.banUser(broadcaster.id, {
             user: msg.userInfo.userId,
             duration: randomDuration,
-            reason: `Timeout random ejecutado por ${user}`,
+            reason: `${user} Jugo a la ruleta  y le tocaron  ${randomDuration} catLaugh`,
           });
         });
 

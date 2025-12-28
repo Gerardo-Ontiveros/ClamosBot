@@ -40,7 +40,7 @@ export const Timeout: Command = {
 
       await apiClient.asUser(botId, async (ctx) => {
         await ctx.moderation.banUser(broadcaster.id, {
-          user: msg.userInfo.userId,
+          user: targetUser.id,
           duration: duration,
           reason: `Timeout random ejecutado por ${user}`,
         });
