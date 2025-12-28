@@ -15,14 +15,12 @@ export const Ruleta: Command = {
 
       const minSeconds = 0;
       const maxSeconds = 60;
-
       const randomDuration =
         Math.floor(Math.random() * (maxSeconds - minSeconds + 1)) + minSeconds;
 
       const broadcaster = await apiClient.users.getUserByName(channelName);
-      const targetUser = await apiClient.users.getUserByName(user);
 
-      if (!broadcaster || !targetUser) return;
+      if (!broadcaster) return;
 
       if (randomDuration === 0) {
         await chatClient.say(
@@ -30,8 +28,8 @@ export const Ruleta: Command = {
           `@${user} no se baño hoy tuvo suerte y no le toco timeout.`
         );
       } else {
-        await apiClient.moderation.banUser(broadcaster?.id, {
-          user: targetUser.id,
+        await apiClient.moderation.banUser(broadcaster.id, {
+          user: msg.userInfo.userId,
           duration: randomDuration,
           reason: `Jugo a la ruleta y le tocaron ${randomDuration} de descanso`,
         });
@@ -45,9 +43,10 @@ export const Ruleta: Command = {
       console.error("Error al dar timeout:", error);
       if (
         error.message.includes("permission") ||
-        error.message.includes("missing scope")
+        error.message.includes("missing scope") ||
+        error.message.includes("forbidden")
       ) {
-        await chatClient.say(channel, `🛡️ @${user} Eres mod madgeCat.`);
+        await chatClient.say(channel, `🛡️ @${user} eres mod madgeCat`);
       } else {
         await chatClient.say(
           channel,
