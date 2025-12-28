@@ -95,7 +95,7 @@ export default async function WebServer(
           obtainmentTimestamp: tokenData.obtainmentTimestamp,
         },
       });
-      mainAuthProvider.addUser(user.id, tokenData);
+      mainAuthProvider.addUser(user.id, tokenData, ["chat"]);
 
       if (!chatClient.isConnected) {
         console.log("Primer usuario. Conectando al sistema de chat...");
