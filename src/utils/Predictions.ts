@@ -55,7 +55,7 @@ export async function lockPrediction(channelName: string) {
     }
 
     const loockPred = await apiClient.predictions.lockPrediction(
-      user,
+      user.id,
       activePrediction.id
     );
 
@@ -104,5 +104,5 @@ export function formatStats(prediction: HelixPrediction) {
   const bluePerc = Math.round((bluePoints / totalPoints) * 100);
   const pinkPerc = Math.round((pinkPoints / totalPoints) * 100);
 
-  return ` ${blue.title}: ${bluePerc}% (${bluePoints}) - 🎀${pink.title}: ${pinkPerc}% (${pinkPoints}) | TOTAL DE PUNTOS: ${totalPoints}`;
+  return ` ${blue.title}: ${bluePerc}% (${bluePoints}) - ${pink.title}: ${pinkPerc}% (${pinkPoints}) | TOTAL DE PUNTOS: ${totalPoints}`;
 }
