@@ -11,6 +11,7 @@ export const SCOPES = [
 
   "channel:manage:broadcast",
   "channel:manage:predictions",
+  "channel:read:predictions",
   "channel:manage:polls",
 
   "moderation:read",
