@@ -9,7 +9,7 @@ export const Ruleta: Command = {
       const channelName = channel.replace("#", "");
 
       if (msg.userInfo.isMod || msg.userInfo.isBroadcaster) {
-        await chatClient.say(channel, `🛡️ @${user} Eres mod madgeCat.`);
+        await chatClient.say(channel, `🛡️ @${user} Eres mod MadgeCat .`);
         return;
       }
 
@@ -32,13 +32,13 @@ export const Ruleta: Command = {
           await ctx.moderation.banUser(broadcaster.id, {
             user: msg.userInfo.userId,
             duration: randomDuration,
-            reason: `${user} Jugo a la ruleta  y le tocaron  ${randomDuration} catLaugh`,
+            reason: `${user} Jugo a la ruleta  y le tocaron  ${randomDuration} CatLaugh `,
           });
         });
 
         await chatClient.say(
           channel,
-          `@${user} se hizo el valiente y lo durmieron ${randomDuration} segundos catLaugh`
+          `@${user} se hizo el valiente y lo durmieron ${randomDuration} segundos CatLaugh `
         );
       }
     } catch (error: any) {
@@ -48,7 +48,7 @@ export const Ruleta: Command = {
         error.message.includes("missing scope") ||
         error.message.includes("forbidden")
       ) {
-        await chatClient.say(channel, `🛡️ @${user} eres mod madgeCat`);
+        await chatClient.say(channel, `🛡️ @${user} eres mod MadgeCat`);
       } else {
         console.error("Error al dar timeout:", error);
         await chatClient.say(
