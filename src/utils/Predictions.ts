@@ -11,7 +11,7 @@ export async function resolvePrediction(
 
     const predictions = await apiClient.predictions.getPredictions(user.id);
     const activePrediction = predictions.data.find(
-      (p) => p.status === "ACTIVE"
+      (p) => p.status === "ACTIVE" || p.status === "LOCKED"
     );
 
     if (!activePrediction) {
@@ -73,14 +73,14 @@ export async function abortPrediction(channelName: string) {
 
     const predictions = await apiClient.predictions.getPredictions(user.id);
     const activePrediction = predictions.data.find(
-      (p) => p.status === "ACTIVE" || "LOCK"
+      (p) => p.status === "ACTIVE" || p.status === "LOCKED"
     );
 
     if (!activePrediction) {
       console.log("No hay predicción activa para cerrar.");
       return false;
     }
-    await apiClient.predictions.lockPrediction(user, activePrediction.id);
+    await apiClient.predictions.cancelPrediction(user.id, activePrediction.id);
 
     return true;
   } catch (error) {
@@ -97,7 +97,7 @@ export function formatStats(prediction: HelixPrediction) {
   const pinkPoints = pink.totalChannelPoints;
   const totalPoints = bluePoints + pinkPoints;
 
-  if (totalPoints) {
+  if (totalPoints === 0) {
     return `${blue.title}: 0% (0) - ${pink.title}: 0% (0)`;
   }
 

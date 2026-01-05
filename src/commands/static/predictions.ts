@@ -1,6 +1,7 @@
 import { HelixPrediction } from "@twurple/api";
 import { Command } from "../../types/Commands";
 import {
+  abortPrediction,
   formatStats,
   lockPrediction,
   resolvePrediction,
@@ -149,6 +150,24 @@ export const ClosePred: Command = {
         chatClient.say(channel, `APUESTAS CERRADAS: ${statsMsg} peepoCheer`);
       } else {
         chatClient.say(channel, "No hay predicción activa para cerrar.");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  },
+};
+
+export const AbortPred: Command = {
+  name: "abortPred",
+  adminOnly: true,
+  description: "Cancelar prediccion en curso",
+  execute: async ({ chatClient, channel }) => {
+    try {
+      const channelName = channel.replace("#", "");
+      const abortPred = await abortPrediction(channelName);
+
+      if (abortPred) {
+        chatClient.say(channel, `PREDICCION  CANCELADA`);
       }
     } catch (e) {
       console.error(e);
