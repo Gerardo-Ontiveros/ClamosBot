@@ -3,7 +3,13 @@ import { Commands } from "./static/commands";
 import { Deck } from "./static/deck";
 import { Game } from "./static/game";
 import { Ping } from "./static/ping";
-import { ClosePred, Prediction, WinBlue, WinPink } from "./static/predictions";
+import {
+  AbortPred,
+  ClosePred,
+  Prediction,
+  WinBlue,
+  WinPink,
+} from "./static/predictions";
 import { Rank } from "./static/rank";
 import { Ruleta } from "./static/ruleta";
 import { Timeout } from "./static/timeout";
@@ -29,6 +35,7 @@ export const staticCommands = [
   WinBlue,
   WinPink,
   ClosePred,
+  AbortPred,
   Game,
   Timeout,
 ];
