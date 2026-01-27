@@ -8,3 +8,6 @@ export const redirectUri = process.env.REDIRECT_URI!;
 export const botUsername = process.env.BOT_USERNAME;
 export const apiUri = process.env.API_URI;
 export const clashRoyaleToken = process.env.CLASH_ROYALE_TOKEN;
+export const spotifyClientId = process.env.SPOTIFY_CLIENT_ID!;
+export const spotifyClientSecret = process.env.SPOTIFY_CLIENT_SECRET!;
+export const spotifyRefreshToken = process.env.SPOTIFY_REFRESH_TOKEN!;
