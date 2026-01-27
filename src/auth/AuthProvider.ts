@@ -1,6 +1,7 @@
 import { RefreshingAuthProvider } from "@twurple/auth";
 import { prisma } from "../database/prisma";
 import { clientId, clientSecret, botUsername } from "../config/Config";
+import {SCOPES} from "../constants/SCOPES"
 
 export const authProvider = new RefreshingAuthProvider({
   clientId,
@@ -25,7 +26,6 @@ export async function loadTokensFromDB() {
   const channelsToJoin: string[] = [];
 
   for (const user of users) {
-    const intents = ["chat"];
 
     await authProvider.addUser(
       user.id,
@@ -35,7 +35,7 @@ export async function loadTokensFromDB() {
         expiresIn: user.expiresIn || 0,
         obtainmentTimestamp: Number(user.obtainmentTimestamp) || 0,
       },
-      intents
+      SCOPES
     );
 
     if (user.username.toLowerCase() !== botUsername?.toLowerCase()) {
