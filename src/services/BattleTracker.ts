@@ -2,11 +2,12 @@ import axios from "axios";
 import { apiUri, clashRoyaleToken } from "../config/Config";
 import { db } from "../config/Firebase";
 
-const PLAYER_TAGS = ["#P2U9G2J", "#U0UJCJUP0"];
-
-const winsRef = db.ref("stream/stats/wins");
-const losesRef = db.ref("stream/stats/loses");
-const streakRef = db.ref("stream/stats/racha");
+// 1. Cada jugador ahora tiene un arreglo (array) de 'tags'
+const PLAYERS = [
+  { name: "Sergio", tags: ["#P2U9G2J", "#U0UJCJUP0"] },
+  { name: "Arden", tags: ["#U0UJCJUP0"] },
+  { name: "Anaban", tags: ["#GYUQQCLV", "#Q029J2RU"] }, 
+];
 
 let trackerInterval: NodeJS.Timeout | null = null;
 let lastCheckTime = new Date();
@@ -16,15 +17,17 @@ const parseRoyaleDate = (dateStr: string): Date => {
     /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2}).*$/,
     "$1-$2-$3T$4:$5:$6Z"
   );
-
   return new Date(formatted);
 };
 
 const initDbIfNeeded = async () => {
-  const snapshot = await db.ref("stream/stats").once("value");
-  if (!snapshot.exists()) {
-    await db.ref("stream/stats").set({ wins: 0, loses: 0, racha: 0 });
-    console.log("🆕 Base de datos inicializada en 0");
+  for (const player of PLAYERS) {
+    const playerRef = db.ref(`stream/seasonFinal/${player.name}`);
+    const snapshot = await playerRef.once("value");
+    if (!snapshot.exists()) {
+      await playerRef.set({ wins: 0, loses: 0, rank: 0 });
+      console.log(`🆕 Base de datos inicializada para ${player.name}`);
+    }
   }
 };
 
@@ -34,66 +37,80 @@ export const startTracking = async (chatClient: any, channel: string) => {
   }
 
   await initDbIfNeeded();
-
   lastCheckTime = new Date();
-
-  chatClient.say(channel, "🟢 Contador  activado. peepoCheer");
+  chatClient.say(channel, "🟢 Contador activado peepoCheer");
 
   trackerInterval = setInterval(async () => {
     try {
       let newBattlesFound = false;
 
-      for (const tag of PLAYER_TAGS) {
-        const encodedTag = tag.replace("#", "%23");
+      for (const player of PLAYERS) {
+        let maxRank = 0; // Variable para encontrar el rango más alto entre sus cuentas
 
-        const res = await axios.get(
-          `${apiUri}/v1/players/${encodedTag}/battlelog`,
-          {
-            headers: {
-              Authorization: `Bearer ${clashRoyaleToken}`,
-            },
+        // Iteramos sobre CADA cuenta del jugador
+        for (const tag of player.tags) {
+          const encodedTag = tag.replace("#", "%23");
+
+          try {
+            // A. Obtenemos el perfil para revisar el Rank
+            const profileRes = await axios.get(
+              `${apiUri}/v1/players/${encodedTag}`,
+              { headers: { Authorization: `Bearer ${clashRoyaleToken}` } }
+            );
+            
+            const currentRank = profileRes.data.trophies; 
+            if (currentRank > maxRank) {
+              maxRank = currentRank; // Guardamos el mayor rango encontrado
+            }
+
+            // B. Obtenemos el registro de batallas
+            const battleRes = await axios.get(
+              `${apiUri}/v1/players/${encodedTag}/battlelog`,
+              { headers: { Authorization: `Bearer ${clashRoyaleToken}` } }
+            );
+
+            const battles = battleRes.data;
+            const recentBattles = battles.filter((battle: any) => {
+              const battleDate = parseRoyaleDate(battle.battleTime);
+              return battleDate > lastCheckTime;
+            });
+
+            // Analizamos las batallas nuevas
+            for (const battle of recentBattles) {
+              newBattlesFound = true;
+
+              const myCrowns = battle.team[0].crowns;
+              const enemyCrowns = battle.opponent[0].crowns;
+
+              const winsRef = db.ref(`stream/seasonFinal/${player.name}/wins`);
+              const losesRef = db.ref(`stream/seasonFinal/${player.name}/loses`);
+
+              if (myCrowns > enemyCrowns) {
+                console.log(`✅ Victoria detectada (${player.name} - ${tag})`);
+                await winsRef.transaction((current) => (current || 0) + 1);
+              } else if (enemyCrowns > myCrowns) {
+                console.log(`❌ Derrota detectada (${player.name} - ${tag})`);
+                await losesRef.transaction((current) => (current || 0) + 1);
+              }
+            }
+          } catch (err) {
+            console.error(`Error procesando el tag ${tag} de ${player.name}`);
           }
-        );
+        } // Fin del ciclo de cuentas (tags)
 
-        const battles = res.data;
+        // Actualizamos el rango más alto encontrado para este jugador
+        await db.ref(`stream/seasonFinal/${player.name}/rank`).set(maxRank);
 
-        const recentBattles = battles.filter((battle: any) => {
-          const battleDate = parseRoyaleDate(battle.battleTime);
-          return battleDate > lastCheckTime;
-        });
-
-        for (const battle of recentBattles) {
-          newBattlesFound = true;
-
-          const myCrowns = battle.team[0].crowns;
-          const enemyCrowns = battle.opponent[0].crowns;
-
-          if (myCrowns > enemyCrowns) {
-            console.log(`✅ Victoria detectada (${tag})`);
-
-            await winsRef.transaction((current) => (current || 0) + 1);
-            await streakRef.transaction((current) => (current || 0) + 1);
-          } else if (enemyCrowns > myCrowns) {
-            console.log(`❌ Derrota detectada (${tag})`);
-
-            await losesRef.transaction((current) => (current || 0) + 1);
-            await streakRef.set(0);
-          }
-        }
-      }
+      } // Fin del ciclo de jugadores
 
       if (newBattlesFound) {
         lastCheckTime = new Date();
-        const snapshot = await db.ref("stream/stats").once("value");
-        const s = snapshot.val();
-        console.log(
-          `📊 Stats actuales: ${s.wins}W - ${s.loses}L | Racha: ${s.racha}`
-        );
+        console.log("📊 Datos actualizados en Firebase.");
       }
     } catch (error) {
-      console.error("Error actualizando el contador", error);
+      console.error("Error en el ciclo principal del contador:", error);
     }
-  }, 300000);
+  }, 300000); // Se ejecuta cada 5 minutos
 };
 
 export const stopTracking = async (chatClient: any, channel: string) => {
@@ -108,8 +125,9 @@ export const stopTracking = async (chatClient: any, channel: string) => {
 };
 
 export const resetTracking = async (chatClient: any, channel: string) => {
-  await winsRef.set(0);
-  await losesRef.set(0);
-  await streakRef.set(0);
+  for (const player of PLAYERS) {
+    const playerRef = db.ref(`stream/seasonFinal/${player.name}`);
+    await playerRef.update({ wins: 0, loses: 0 }); 
+  }
   chatClient.say(channel, "CONTADOR REINICIADO peepoCheer");
 };
