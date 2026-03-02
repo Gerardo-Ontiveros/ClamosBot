@@ -2,10 +2,9 @@ import axios from "axios";
 import { apiUri, clashRoyaleToken } from "../config/Config";
 import { db } from "../config/Firebase";
 
-// 1. Cada jugador ahora tiene un arreglo (array) de 'tags'
 const PLAYERS = [
   { name: "Sergio", tags: ["#P2U9G2J", "#U0UJCJUP0"] },
-  { name: "Arden", tags: ["#U0UJCJUP0"] },
+  { name: "Arden", tags: ["#8JJ80J28"] },
   { name: "Anaban", tags: ["#GYUQQCLV", "#Q029J2RU"] }, 
 ];
 
