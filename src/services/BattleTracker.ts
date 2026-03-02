@@ -45,25 +45,22 @@ export const startTracking = async (chatClient: any, channel: string) => {
       let newBattlesFound = false;
 
       for (const player of PLAYERS) {
-        let maxRank = 0; // Variable para encontrar el rango más alto entre sus cuentas
+        let maxRank = 0; 
 
-        // Iteramos sobre CADA cuenta del jugador
         for (const tag of player.tags) {
           const encodedTag = tag.replace("#", "%23");
 
           try {
-            // A. Obtenemos el perfil para revisar el Rank
             const profileRes = await axios.get(
               `${apiUri}/v1/players/${encodedTag}`,
               { headers: { Authorization: `Bearer ${clashRoyaleToken}` } }
             );
             
-            const currentRank = profileRes.data.trophies; 
+            const currentRank = profileRes.data.currentPathOfLegendSeasonResult?.rank || 0; 
             if (currentRank > maxRank) {
-              maxRank = currentRank; // Guardamos el mayor rango encontrado
+              maxRank = currentRank;
             }
 
-            // B. Obtenemos el registro de batallas
             const battleRes = await axios.get(
               `${apiUri}/v1/players/${encodedTag}/battlelog`,
               { headers: { Authorization: `Bearer ${clashRoyaleToken}` } }
@@ -75,7 +72,6 @@ export const startTracking = async (chatClient: any, channel: string) => {
               return battleDate > lastCheckTime;
             });
 
-            // Analizamos las batallas nuevas
             for (const battle of recentBattles) {
               newBattlesFound = true;
 
@@ -96,12 +92,11 @@ export const startTracking = async (chatClient: any, channel: string) => {
           } catch (err) {
             console.error(`Error procesando el tag ${tag} de ${player.name}`);
           }
-        } // Fin del ciclo de cuentas (tags)
+        } 
 
-        // Actualizamos el rango más alto encontrado para este jugador
         await db.ref(`stream/seasonFinal/${player.name}/rank`).set(maxRank);
 
-      } // Fin del ciclo de jugadores
+      }
 
       if (newBattlesFound) {
         lastCheckTime = new Date();
@@ -110,7 +105,7 @@ export const startTracking = async (chatClient: any, channel: string) => {
     } catch (error) {
       console.error("Error en el ciclo principal del contador:", error);
     }
-  }, 300000); // Se ejecuta cada 5 minutos
+  }, 120000); 
 };
 
 export const stopTracking = async (chatClient: any, channel: string) => {
