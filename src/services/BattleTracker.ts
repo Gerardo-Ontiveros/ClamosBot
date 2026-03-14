@@ -188,7 +188,7 @@ console.error("Error actualizando el contador", error);
 
 }
 
-}, 300000);
+}, 180000);
 
 };
 
